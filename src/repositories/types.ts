@@ -4,6 +4,9 @@
  * are the only source of truth for what crosses the wire (see CLAUDE.md).
  */
 
+import type { TicketSource } from "../contract/tickets.contract.js";
+export type { TicketSource };
+
 export interface Tenant {
   id: string;
   createdAt: string;
@@ -51,8 +54,6 @@ export interface ApiKey {
   revokedAt: string | null;
   lastUsedAt: string | null;
 }
-
-export type TicketSource = "ui" | "api";
 
 export interface Ticket {
   id: string;
@@ -118,7 +119,7 @@ export interface JiraCredentialsRepository {
     refreshTokenEncrypted: string;
     accessTokenExpiresAt: string;
     now: string;
-  }): JiraCredential;
+  }): void;
   findByTenant(tenantId: string): JiraCredential | null;
   updateTokens(
     tenantId: string,

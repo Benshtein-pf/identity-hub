@@ -13,8 +13,16 @@ export interface JiraRoutesOptions {
   requireSession: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
 }
 
+const OAUTH_ERROR_REASONS: Partial<Record<string, string>> = {
+  INVALID_OAUTH_STATE: "invalid_state",
+  JIRA_UPSTREAM_ERROR: "upstream_error"
+};
+
 function errorReasonFromUnknown(error: unknown): string {
-  return error instanceof AppError ? error.code : "INTERNAL_ERROR";
+  if (error instanceof AppError) {
+    return OAUTH_ERROR_REASONS[error.code] ?? "error";
+  }
+  return "error";
 }
 
 export function registerJiraRoutes(fastify: FastifyInstance, options: JiraRoutesOptions): void {

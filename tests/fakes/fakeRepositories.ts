@@ -101,7 +101,6 @@ export function createFakeJiraCredentialsRepository(): JiraCredentialsRepository
         updatedAt: input.now
       };
       rows.set(input.tenantId, credential);
-      return credential;
     },
     findByTenant(tenantId) {
       return rows.get(tenantId) ?? null;

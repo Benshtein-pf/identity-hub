@@ -68,11 +68,6 @@ export function createJiraCredentialsRepository(db: Database.Database): JiraCred
         input.now,
         input.now
       );
-      const row = selectByTenant.get(input.tenantId);
-      if (!row) {
-        throw new Error("Failed to read back jira_credentials row after upsert.");
-      }
-      return toJiraCredential(row);
     },
     findByTenant(tenantId) {
       const row = selectByTenant.get(tenantId);

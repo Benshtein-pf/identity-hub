@@ -200,8 +200,13 @@ export function createJiraClient(config: JiraClientConfig): JiraClient {
       const allProjects: JiraProjectApi[] = [];
       let startAt = 0;
       const maxResults = 100;
+      const MAX_PAGES = 100;
+      let page = 0;
 
       while (true) {
+        if (page >= MAX_PAGES) {
+          throw new JiraApiError("Jira project listing exceeded the maximum page limit.", 0);
+        }
         const url = `${API_BASE_URL}/ex/jira/${cloudId}/rest/api/3/project/search?maxResults=${maxResults}&startAt=${startAt}`;
         const data = await fetchJson(
           url,
@@ -215,6 +220,7 @@ export function createJiraClient(config: JiraClientConfig): JiraClient {
           break;
         }
         startAt += data.values.length;
+        page += 1;
       }
 
       return allProjects;

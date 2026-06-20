@@ -15,7 +15,11 @@ export const createApiKeyRequestSchema = z
     name: z.string().min(1).max(100).optional(),
     // Optional user-set expiry. No forced default expiry: revocation, not
     // rotation, is the control for machine consumers (see DECISIONS.md).
-    expiresAt: z.string().datetime().optional()
+    expiresAt: z
+      .string()
+      .datetime()
+      .refine((v) => new Date(v) > new Date(), { message: "expiresAt must be a future date" })
+      .optional()
   })
   .strict();
 export type CreateApiKeyRequest = z.infer<typeof createApiKeyRequestSchema>;

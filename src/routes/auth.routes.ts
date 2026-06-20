@@ -35,6 +35,12 @@ export function registerAuthRoutes(fastify: FastifyInstance, options: AuthRoutes
       body: registerRequestSchema,
       response: { 201: authResponseSchema }
     },
+    config: {
+      rateLimit: {
+        max: 10,
+        timeWindow: 60_000
+      }
+    },
     handler: async (request, reply) => {
       const { user, session } = await options.authService.register(request.body.email, request.body.password);
       setSessionCookie(reply, options.cookieName, session.id, session.expiresAt);
@@ -48,6 +54,12 @@ export function registerAuthRoutes(fastify: FastifyInstance, options: AuthRoutes
     schema: {
       body: loginRequestSchema,
       response: { 200: authResponseSchema }
+    },
+    config: {
+      rateLimit: {
+        max: 10,
+        timeWindow: 60_000
+      }
     },
     handler: async (request, reply) => {
       const { user, session } = await options.authService.login(request.body.email, request.body.password);
@@ -66,7 +78,7 @@ export function registerAuthRoutes(fastify: FastifyInstance, options: AuthRoutes
       if (sessionId) {
         options.authService.logout(tenantId, sessionId);
       }
-      reply.clearCookie(options.cookieName, { path: "/" });
+      reply.clearCookie(options.cookieName, { path: "/", httpOnly: true, secure: true, sameSite: "lax" });
       reply.code(204).send();
     }
   });
