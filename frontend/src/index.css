@@ -1,0 +1,5 @@
+@import "tailwindcss";
+
+/* Override the default media-query dark variant with a class-based one.
+   Adding .dark to <html> activates dark: utilities on every descendant. */
+@custom-variant dark (&:where(.dark, .dark *));

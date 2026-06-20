@@ -1,3 +1,4 @@
+import cors from "@fastify/cors";
 import cookie from "@fastify/cookie";
 import rateLimit from "@fastify/rate-limit";
 import Fastify, { type FastifyInstance } from "fastify";
@@ -120,6 +121,15 @@ export async function buildApp(deps: AppDependencies): Promise<FastifyInstance> 
 
   fastify.setValidatorCompiler(validatorCompiler);
   fastify.setSerializerCompiler(serializerCompiler);
+
+  // CORS must be registered before any route so preflight OPTIONS requests are
+  // answered before the session auth hook can reject them. Scoped to the single
+  // configured FRONTEND_URL (never "*", which is invalid with credentials:true).
+  await fastify.register(cors, {
+    origin: deps.frontendUrl,
+    credentials: true,
+    methods: ["GET", "POST", "DELETE", "OPTIONS"]
+  });
 
   registerErrorHandler(fastify);
   await registerSwagger(fastify);

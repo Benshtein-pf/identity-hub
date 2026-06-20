@@ -188,6 +188,16 @@ written back into it."
   the Jira HTTP client, no HTTP library dependency. `vitest` for tests.
   `@fastify/rate-limit`, per-API-key, in-process (per the Redis rejection
   above).
+- **CORS (`@fastify/cors`) enabled, scoped to `FRONTEND_URL` with credentials.**
+  The frontend SPA (`:5173`) and the API (`:3000`) are different origins, so
+  credentialed `fetch` calls need `Access-Control-Allow-Origin` +
+  `Access-Control-Allow-Credentials`. `@fastify/cors` is registered before all
+  routes with `origin: env.FRONTEND_URL` (the already-validated env var) and
+  `credentials: true`. Using a specific origin rather than `"*"` is mandatory
+  (browsers refuse credentialed requests to `"*"`), and it ensures only the
+  configured frontend can read API responses. The frozen request/response
+  contract (`src/contract/`) is not touched by this change.
+
 - **`exactOptionalPropertyTypes` tried and rejected.** Beyond `tsconfig`'s
   required `strict: true`, this stricter flag was tried and reverted: zod's
   own inferred type for an optional field is `key?: T | undefined`, which

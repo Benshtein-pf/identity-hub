@@ -42,7 +42,7 @@ no external service accounts — just Node and a `.env` file.
    Then fill in `ATLASSIAN_CLIENT_ID` and `ATLASSIAN_CLIENT_SECRET` from step 2.
    The rest of `.env.example`'s defaults work as-is for local development.
 
-4. **Run:**
+4. **Run the backend:**
 
    ```bash
    npm run dev
@@ -50,6 +50,16 @@ no external service accounts — just Node and a `.env` file.
 
    The API listens on `http://localhost:3000`. Live API docs (generated from
    the zod contract, not hand-maintained) are at `http://localhost:3000/docs`.
+
+5. **Run the frontend** (separate terminal, from the repo root):
+
+   ```bash
+   cd frontend && npm install && npm run dev
+   ```
+
+   Open **`http://localhost:5173`** in your browser. The frontend talks to the
+   backend via CORS — both must be running. The `FRONTEND_URL=http://localhost:5173`
+   default in `.env.example` already matches.
 
 ### A note on the session cookie and `localhost`
 
