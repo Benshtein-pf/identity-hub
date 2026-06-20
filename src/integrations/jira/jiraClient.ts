@@ -101,7 +101,8 @@ const projectSchema = z
   .passthrough();
 const projectSearchResponseSchema = z
   .object({
-    values: z.array(projectSchema)
+    values: z.array(projectSchema),
+    isLast: z.boolean()
   })
   .passthrough();
 
@@ -196,13 +197,27 @@ export function createJiraClient(config: JiraClientConfig): JiraClient {
     },
 
     async listProjects(accessToken, cloudId) {
-      const url = `${API_BASE_URL}/ex/jira/${cloudId}/rest/api/3/project/search?maxResults=100`;
-      const data = await fetchJson(
-        url,
-        { headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" } },
-        projectSearchResponseSchema
-      );
-      return data.values.map((project) => ({ id: project.id, key: project.key, name: project.name }));
+      const allProjects: JiraProjectApi[] = [];
+      let startAt = 0;
+      const maxResults = 100;
+
+      while (true) {
+        const url = `${API_BASE_URL}/ex/jira/${cloudId}/rest/api/3/project/search?maxResults=${maxResults}&startAt=${startAt}`;
+        const data = await fetchJson(
+          url,
+          { headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" } },
+          projectSearchResponseSchema
+        );
+        for (const project of data.values) {
+          allProjects.push({ id: project.id, key: project.key, name: project.name });
+        }
+        if (data.isLast || data.values.length === 0) {
+          break;
+        }
+        startAt += data.values.length;
+      }
+
+      return allProjects;
     },
 
     async createIssue(accessToken, cloudId, input) {
