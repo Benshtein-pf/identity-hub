@@ -34,7 +34,7 @@ no external service accounts — just Node and a `.env` file.
    - Sign up for a free Jira Cloud site at [atlassian.com](https://www.atlassian.com/) if you don't have one.
    - Go to [developer.atlassian.com/console/myapps](https://developer.atlassian.com/console/myapps/) → **Create app** → **OAuth 2.0 integration**.
    - Under **Permissions**, add the **Jira API** and grant scopes
-     `read:jira-work`, `write:jira-work`, `offline_access`.
+     `read:jira-work`, `write:jira-work`.
    - Under **Authorization**, set the callback URL to
      `http://localhost:3000/api/jira/callback`.
    - Copy the **Client ID** and **Secret** from **Settings**.
