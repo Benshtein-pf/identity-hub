@@ -144,6 +144,17 @@ describe("extractFeaturedPostTitle", () => {
     expect(extractFeaturedPostTitle(html)).toBe("Post NHI Security");
   });
 
+  it("extracts title even when a nested anchor appears before the heading", () => {
+    const html = `
+      <div class="blog_main-post">
+        <a href="/blog/x" class="blog_main-item-link">
+          <a href="/images/cover"><img alt="" /></a>
+          <h2>Title After Nested Anchor</h2>
+        </a>
+      </div>`;
+    expect(extractFeaturedPostTitle(html)).toBe("Title After Nested Anchor");
+  });
+
   it("ignores headings that appear before the featured block", () => {
     const html = `
       <h1>Page Title</h1>

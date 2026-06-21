@@ -272,7 +272,7 @@ title on the post page (which appends `| Oasis + Zscaler`-style suffixes). The
 editorial title is more readable as a Jira ticket title.
 
 **AI model.** `claude-haiku-4-5-20251001` — fast and inexpensive for a
-single-call summarization with low output token requirements (~300 tokens).
+single-call summarization with low output token requirements (~400 tokens).
 Summary style: concise 2-4 sentence paragraph, no em dashes. Description contains
 the summary only (no URL footer).
 

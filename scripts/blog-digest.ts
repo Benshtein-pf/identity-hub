@@ -4,6 +4,8 @@ import "dotenv/config";
 import Anthropic from "@anthropic-ai/sdk";
 import Database from "better-sqlite3";
 import { z } from "zod";
+import { fileURLToPath } from "url";
+import { dirname, resolve } from "path";
 import {
   decodeEntities,
   extractText,
@@ -26,7 +28,10 @@ const ANTHROPIC_API_KEY = requireEnv("ANTHROPIC_API_KEY");
 const DIGEST_API_KEY = requireEnv("DIGEST_API_KEY");
 const DIGEST_PROJECT_KEY = requireEnv("DIGEST_PROJECT_KEY");
 const DIGEST_APP_URL = process.env["DIGEST_APP_URL"] ?? "http://localhost:3000";
-const DATABASE_PATH = process.env["DATABASE_PATH"] ?? "./data/identity-hub.sqlite";
+const _scriptDir = dirname(fileURLToPath(import.meta.url));
+const DATABASE_PATH =
+  process.env["DATABASE_PATH"] ??
+  resolve(_scriptDir, "../data/identity-hub.sqlite");
 
 const BLOG_BASE = "https://oasis.security";
 
@@ -71,7 +76,9 @@ interface LatestPost {
 async function fetchLatestPost(): Promise<LatestPost> {
   let html: string;
   try {
-    const res = await fetch(`${BLOG_BASE}/blog`);
+    const res = await fetch(`${BLOG_BASE}/blog`, {
+      headers: { "User-Agent": "IdentityHub-Blog-Digest/1.0" },
+    });
     if (!res.ok) {
       console.error(`Error: blog listing page returned HTTP ${res.status}`);
       process.exit(1);
@@ -106,7 +113,9 @@ async function fetchLatestPost(): Promise<LatestPost> {
 async function fetchPostBody(postUrl: string): Promise<string> {
   let html: string;
   try {
-    const res = await fetch(postUrl);
+    const res = await fetch(postUrl, {
+      headers: { "User-Agent": "IdentityHub-Blog-Digest/1.0" },
+    });
     if (!res.ok) {
       console.error(`Error: post page returned HTTP ${res.status}`);
       process.exit(1);

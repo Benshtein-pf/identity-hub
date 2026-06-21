@@ -35,9 +35,10 @@ export function extractFeaturedPostSlug(html: string): string | null {
 // Finds the blog_main-post featured block and returns the decoded, tag-stripped
 // text of its first heading element. Returns null if either is absent.
 export function extractFeaturedPostTitle(html: string): string | null {
-  const mainBlock = html.match(/blog_main-post[\s\S]*?<\/a>/)?.[0];
-  if (!mainBlock) return null;
-  const headingInner = mainBlock.match(/<h[1-6][^>]*>([\s\S]*?)<\/h[1-6]>/i)?.[1];
+  const blockStart = html.indexOf("blog_main-post");
+  if (blockStart === -1) return null;
+  const fromBlock = html.slice(blockStart);
+  const headingInner = fromBlock.match(/<h[1-6][^>]*>([\s\S]*?)<\/h[1-6]>/i)?.[1];
   if (!headingInner) return null;
   return decodeEntities(headingInner.replace(/<[^>]+>/g, "")).trim() || null;
 }
