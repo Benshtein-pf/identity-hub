@@ -5,9 +5,9 @@ import {
   createApiKeyRequestSchema,
   createApiKeyResponseSchema,
   listApiKeysResponseSchema
-} from "../contract/apiKeys.contract.js";
+} from "../contract/index.js";
 import { requireTenantId } from "../plugins/requestContext.js";
-import type { ApiKeysService } from "../services/apiKeys.service.js";
+import type { ApiKeysService } from "../services/index.js";
 
 export interface ApiKeysRoutesOptions {
   apiKeysService: ApiKeysService;

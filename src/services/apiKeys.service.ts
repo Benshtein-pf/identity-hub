@@ -1,4 +1,4 @@
-import type { ApiKeySummary } from "../contract/apiKeys.contract.js";
+import type { ApiKeySummary } from "../contract/index.js";
 import { AppError } from "../contract/errors.js";
 import { sha256Hex } from "../crypto/hashing.js";
 import { generateId, generateOpaqueToken } from "../crypto/tokens.js";

@@ -1,7 +1,7 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { AppError } from "../contract/errors.js";
 import { sha256Hex } from "../crypto/hashing.js";
-import type { ApiKeysService } from "../services/apiKeys.service.js";
+import type { ApiKeysService } from "../services/index.js";
 import "./requestContext.js";
 
 /**

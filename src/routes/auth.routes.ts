@@ -1,9 +1,9 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
-import { authResponseSchema, loginRequestSchema, registerRequestSchema, type UserResponse } from "../contract/auth.contract.js";
+import { authResponseSchema, loginRequestSchema, registerRequestSchema, type UserResponse } from "../contract/index.js";
 import { AppError } from "../contract/errors.js";
 import { requireTenantId } from "../plugins/requestContext.js";
-import type { AuthService, AuthSession } from "../services/auth.service.js";
+import type { AuthService, AuthSession } from "../services/index.js";
 
 export interface AuthRoutesOptions {
   authService: AuthService;

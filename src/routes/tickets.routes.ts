@@ -5,9 +5,9 @@ import {
   listRecentTicketsQuerySchema,
   recentTicketsResponseSchema,
   ticketResponseSchema
-} from "../contract/tickets.contract.js";
+} from "../contract/index.js";
 import { requireTenantId } from "../plugins/requestContext.js";
-import type { TicketsService } from "../services/tickets.service.js";
+import type { TicketsService } from "../services/index.js";
 
 export interface TicketsRoutesOptions {
   ticketsService: TicketsService;

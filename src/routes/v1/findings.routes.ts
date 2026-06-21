@@ -1,10 +1,10 @@
 import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
-import { createFindingRequestSchema, createFindingResponseSchema } from "../../contract/findings.contract.js";
+import { createFindingRequestSchema, createFindingResponseSchema } from "../../contract/index.js";
 import { apiKeyRateLimitKeyGenerator, createApiKeyAuthHandler } from "../../plugins/apiKeyAuth.js";
 import { requireTenantId } from "../../plugins/requestContext.js";
-import type { ApiKeysService } from "../../services/apiKeys.service.js";
-import type { TicketsService } from "../../services/tickets.service.js";
+import type { ApiKeysService } from "../../services/index.js";
+import type { TicketsService } from "../../services/index.js";
 
 export interface FindingsRoutesOptions {
   ticketsService: TicketsService;

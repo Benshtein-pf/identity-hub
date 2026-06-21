@@ -1,10 +1,10 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
-import { jiraCallbackQuerySchema, jiraProjectsResponseSchema, jiraStatusResponseSchema } from "../contract/jira.contract.js";
+import { jiraCallbackQuerySchema, jiraProjectsResponseSchema, jiraStatusResponseSchema } from "../contract/index.js";
 import { AppError } from "../contract/errors.js";
 import { requireTenantId } from "../plugins/requestContext.js";
-import type { JiraOAuthService } from "../services/jiraOAuth.service.js";
-import type { JiraService } from "../services/jira.service.js";
+import type { JiraOAuthService } from "../services/index.js";
+import type { JiraService } from "../services/index.js";
 
 export interface JiraRoutesOptions {
   jiraOAuthService: JiraOAuthService;

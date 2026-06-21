@@ -1,4 +1,4 @@
-import type { TicketResponse } from "../contract/tickets.contract.js";
+import type { TicketResponse } from "../contract/index.js";
 import { AppError } from "../contract/errors.js";
 import { generateId } from "../crypto/tokens.js";
 import type { JiraClient } from "../integrations/jira/jiraClient.js";
