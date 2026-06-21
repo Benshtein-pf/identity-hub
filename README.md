@@ -81,6 +81,7 @@ there. This **only** works for the literal hostname `localhost`, not
 | `npm run typecheck` | Type-check `src/` only |
 | `npm run typecheck:tests` | Type-check `src/` + `tests/` together |
 | `npm run gen:key` | Print a fresh base64 32-byte `APP_ENCRYPTION_KEY` |
+| `npm run digest` | Run the NHI Blog Digest (see below) |
 
 ## Trying it out
 
@@ -111,6 +112,39 @@ curl -X POST http://localhost:3000/api/api-keys -b cookies.txt \
 curl -X POST http://localhost:3000/api/v1/findings \
   -H "X-API-Key: ih_..." -H "Content-Type: application/json" \
   -d '{"projectKey":"PROJ","title":"Overprivileged key: ci-deploy-bot"}'
+```
+
+## NHI Blog Digest
+
+A bonus automation (`scripts/blog-digest.ts`) that fetches the most recent post
+from [oasis.security/blog](https://oasis.security/blog), generates an AI summary
+with `claude-haiku-4-5-20251001`, and files a Jira ticket via `POST /api/v1/findings`.
+Re-running when no new post has been published exits cleanly — no duplicate ticket.
+
+### Extra setup
+
+Add these to `.env` (the backend must be running first):
+
+```
+ANTHROPIC_API_KEY=       # Anthropic API key
+DIGEST_API_KEY=          # IdentityHub API key — generate one:
+                         # curl -X POST http://localhost:3000/api/api-keys \
+                         #   -b cookies.txt -H "Content-Type: application/json" \
+                         #   -d '{"name":"digest"}'
+DIGEST_PROJECT_KEY=      # Jira project key to file tickets into (e.g. SCRUM)
+DIGEST_APP_URL=http://localhost:3000  # default; only set if running on a different port
+```
+
+### Run
+
+```bash
+npm run digest
+```
+
+### Cron (every Monday at 9am)
+
+```
+0 9 * * 1 cd /path/to/repo && npm run digest
 ```
 
 ## Project layout
