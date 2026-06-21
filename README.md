@@ -25,6 +25,8 @@ no external service accounts — just Node and a `.env` file.
 1. **Clone and install:**
 
    ```bash
+   git clone https://github.com/Benshtein-pf/identity-hub.git
+   cd identity-hub
    npm install
    ```
 
@@ -32,9 +34,9 @@ no external service accounts — just Node and a `.env` file.
    - Sign up for a free Jira Cloud site at [atlassian.com](https://www.atlassian.com/) if you don't have one.
    - Go to [developer.atlassian.com/console/myapps](https://developer.atlassian.com/console/myapps/) → **Create app** → **OAuth 2.0 integration**.
    - Under **Permissions**, add the **Jira API** and grant scopes
-     `read:jira-work`, `write:jira-work`.
+     `read:jira-work`, `write:jira-work`, `offline_access`.
    - Under **Authorization**, set the callback URL to
-     `http://localhost:3000/api/jira/callback` (must match `ATLASSIAN_REDIRECT_URI` below exactly).
+     `http://localhost:3000/api/jira/callback`.
    - Copy the **Client ID** and **Secret** from **Settings**.
 
 3. **Configure `.env`:**
@@ -44,8 +46,16 @@ no external service accounts — just Node and a `.env` file.
    npm run gen:key   # prints a base64 32-byte key; paste it as APP_ENCRYPTION_KEY
    ```
 
-   Then fill in `ATLASSIAN_CLIENT_ID` and `ATLASSIAN_CLIENT_SECRET` from step 2.
-   The rest of `.env.example`'s defaults work as-is for local development.
+   Then open `.env` and fill in the three required values:
+
+   | Variable | Where to get it |
+   |---|---|
+   | `APP_ENCRYPTION_KEY` | Output of `npm run gen:key` above |
+   | `ATLASSIAN_CLIENT_ID` | Jira app **Settings** page (step 2) |
+   | `ATLASSIAN_CLIENT_SECRET` | Jira app **Settings** page (step 2) |
+
+   Everything else (`PORT`, `DATABASE_PATH`, `ATLASSIAN_REDIRECT_URI`, etc.) is
+   pre-filled with local-dev defaults and does not need to change.
 
 4. **Run the backend:**
 
@@ -53,8 +63,8 @@ no external service accounts — just Node and a `.env` file.
    npm run dev
    ```
 
-   The API listens on `http://localhost:3000`. Live API docs (generated from
-   the zod contract, not hand-maintained) are at `http://localhost:3000/docs`.
+   The API listens on `http://localhost:3000`. Live API docs are at
+   `http://localhost:3000/docs`.
 
 5. **Run the frontend** (separate terminal, from the repo root):
 
@@ -62,9 +72,9 @@ no external service accounts — just Node and a `.env` file.
    cd frontend && npm install && npm run dev
    ```
 
-   Open **`http://localhost:5173`** in your browser. The frontend talks to the
-   backend via CORS — both must be running. The `FRONTEND_URL=http://localhost:5173`
-   default in `.env.example` already matches.
+   Open **`http://localhost:5173`** in your browser. Both servers must be
+   running — the frontend proxies nothing; it talks directly to the backend
+   via CORS.
 
 ### A note on the session cookie and `localhost`
 
