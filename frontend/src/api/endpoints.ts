@@ -7,10 +7,12 @@ import { z } from "zod";
 import { authResponseSchema } from "@contract/auth.contract";
 import { jiraStatusResponseSchema, jiraProjectsResponseSchema } from "@contract/jira.contract";
 import {
+  createTicketRequestSchema,
   ticketResponseSchema,
   recentTicketsResponseSchema
 } from "@contract/tickets.contract";
 import {
+  createApiKeyRequestSchema,
   createApiKeyResponseSchema,
   listApiKeysResponseSchema
 } from "@contract/apiKeys.contract";
@@ -63,11 +65,7 @@ export function startJiraConnect(): void {
 
 // Tickets
 
-export interface CreateTicketInput {
-  projectKey: string;
-  title: string;
-  description?: string;
-}
+export type CreateTicketInput = z.infer<typeof createTicketRequestSchema>;
 
 export function createTicket(input: CreateTicketInput) {
   return apiFetch("/api/tickets", ticketResponseSchema, {
@@ -85,10 +83,7 @@ export function getRecentTickets(projectKey: string) {
 
 // API keys
 
-export interface CreateApiKeyInput {
-  name?: string;
-  expiresAt?: string;
-}
+export type CreateApiKeyInput = z.infer<typeof createApiKeyRequestSchema>;
 
 export function createApiKey(input: CreateApiKeyInput) {
   return apiFetch("/api/api-keys", createApiKeyResponseSchema, {

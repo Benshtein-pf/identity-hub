@@ -52,6 +52,8 @@ export function TicketsSection({ onGoToJira }: Props) {
       if (err instanceof ApiError) {
         if (err.code === "UNAUTHENTICATED") { clearSession(); return; }
         if (err.code === "JIRA_NOT_CONNECTED") { setJiraNotConnected(true); return; }
+        if (err.code === "RATE_LIMITED") { setError("Too many requests. Please try again shortly."); return; }
+        if (err.code === "JIRA_UPSTREAM_ERROR") { setError("Jira is unavailable right now. Please try again later."); return; }
         setError(err.message);
       } else {
         setError("An unexpected error occurred.");
@@ -110,6 +112,8 @@ export function TicketsSection({ onGoToJira }: Props) {
         if (err.code === "UNAUTHENTICATED") { clearSession(); return; }
         if (err.code === "JIRA_NOT_CONNECTED") { setJiraNotConnected(true); return; }
         if (err.code === "PROJECT_NOT_FOUND") { setProjectFieldError(err.message); }
+        else if (err.code === "RATE_LIMITED") { setCreateError("Too many requests. Please try again shortly."); }
+        else if (err.code === "JIRA_UPSTREAM_ERROR") { setCreateError("Jira is unavailable right now. Please try again later."); }
         else { setCreateError(err.message); }
       } else {
         setCreateError("An unexpected error occurred.");
@@ -157,7 +161,7 @@ export function TicketsSection({ onGoToJira }: Props) {
             >
               {createdTicket.jiraIssueKey}
             </a>{" "}
-            — {createdTicket.title}
+            - {createdTicket.title}
           </Banner>
         )}
 

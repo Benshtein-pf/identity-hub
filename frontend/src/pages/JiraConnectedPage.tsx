@@ -9,11 +9,12 @@ export default function JiraConnectedPage() {
   const success = status === "success";
 
   useEffect(() => {
+    if (!success) return;
     const timer = setTimeout(() => {
       void navigate("/", { replace: true });
     }, 2000);
     return () => clearTimeout(timer);
-  }, [navigate]);
+  }, [success, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center px-4">
@@ -55,9 +56,12 @@ export default function JiraConnectedPage() {
             {reason && (
               <p className="text-sm text-red-600 dark:text-red-400 font-mono">{reason}</p>
             )}
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Redirecting you back to the dashboard...
-            </p>
+            <button
+              className="mt-2 text-sm text-blue-600 dark:text-blue-400 underline hover:no-underline cursor-pointer"
+              onClick={() => void navigate("/", { replace: true })}
+            >
+              Back to dashboard
+            </button>
           </>
         )}
       </div>

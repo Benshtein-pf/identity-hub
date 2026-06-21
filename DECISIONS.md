@@ -205,6 +205,13 @@ written back into it."
   service input types — friction between two strictness conventions, not a
   real bug, and it fought directly against zod being the contract's source of
   truth. `noUncheckedIndexedAccess` was kept.
+- **Three routes intentionally omit a `response:` schema block.** `POST
+  /api/auth/logout` and `DELETE /api/api-keys/:id` return HTTP 204 with no body;
+  there is nothing for zod or the serializer to act on. `GET /api/jira/connect`
+  returns a 302 redirect, not a JSON response. Adding a `schema.response` entry
+  for these routes would force a zod schema on a path that has no serializable
+  payload, producing dead validation code. Accepted as a narrow, deliberate
+  exception to the "every route has a schema" invariant.
 
 ## Known limitations & production path (deliberate scope cuts)
 
