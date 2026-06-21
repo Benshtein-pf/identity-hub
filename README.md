@@ -3,10 +3,15 @@
 POC that lets IdentityHub users file Jira tickets for NHI findings
 (stale service accounts, overprivileged keys, expiring credentials) from a UI
 and from an external REST API (scanners, CI/CD). Includes a TypeScript/Fastify
-backend and a minimal React frontend. See `CLAUDE.md` for the invariants this
-code holds to and `DECISIONS.md` for the reasoning behind every major choice.
+backend and a minimal React frontend. See `DECISIONS.md` for the reasoning
+behind every major architectural and security choice.
 The API contract (`src/contract/`) is also published live as OpenAPI at `/docs`
 once the server is running.
+
+## Prerequisites
+
+- **Node.js 20+** — check with `node --version`
+- A free [Jira Cloud](https://www.atlassian.com/) account (for the OAuth integration)
 
 ## Stack
 
@@ -63,8 +68,8 @@ no external service accounts — just Node and a `.env` file.
 
 ### A note on the session cookie and `localhost`
 
-The session cookie is `httpOnly` + `Secure` + `SameSite=Lax` (non-negotiable,
-see `CLAUDE.md`) — including the `Secure` flag in development. Modern browsers
+The session cookie is `httpOnly` + `Secure` + `SameSite=Lax` — including the
+`Secure` flag in development. Modern browsers
 treat `http://localhost` as a secure context, so `Secure` cookies still work
 there. This **only** works for the literal hostname `localhost`, not
 `127.0.0.1` or a LAN IP — access the app via `http://localhost:3000` /
@@ -86,6 +91,11 @@ there. This **only** works for the literal hostname `localhost`, not
 | `cd frontend && npm test` | Run the frontend test suite (Vitest + RTL, 58 tests) |
 
 ## Trying it out
+
+The quickest way is the UI: start both servers (steps 4 and 5 above), open
+**`http://localhost:5173`**, register an account, connect Jira, then create
+tickets from the dashboard. The curl examples below cover the same flows via
+the API directly.
 
 ```bash
 # Register (also signs you in: the response sets the session cookie)
@@ -152,21 +162,28 @@ npm run digest
 ## Project layout
 
 ```
-src/
-  config/        env validation (fails fast at boot on misconfiguration)
-  contract/       the frozen API contract -- zod schemas + z.infer types for
-                  every route's request/response, plus the structured error shape
-  crypto/         AES-256-GCM, argon2id, opaque token generation
-  db/             SQLite connection + schema
-  repositories/   the only code that touches the DB; every tenant-owned method is tenant-scoped
-  integrations/   the Jira HTTP client (OAuth, projects, issue creation)
-  services/       domain logic, unit-testable with no HTTP server and no real DB
-  plugins/        Fastify cross-cutting concerns: session/API-key auth, error handling, OpenAPI
-  routes/         HTTP only -- wraps services in zod-validated Fastify routes
+frontend/               React SPA (Vite + TypeScript); runs on port 5173
+  src/
+    api/            typed fetch client + endpoint wrappers (consumes src/contract/)
+    auth/           AuthContext — session state shared across the app
+    components/     TicketsSection, JiraStatus, shared UI primitives
+    pages/          LoginPage, DashboardPage, JiraConnectedPage
+    theme/          DarkModeContext
+src/                Fastify backend; runs on port 3000
+  config/           env validation (fails fast at boot on misconfiguration)
+  contract/         frozen API contract -- zod schemas + z.infer types for
+                    every route's request/response, plus the structured error shape
+  crypto/           AES-256-GCM, argon2id, opaque token generation
+  db/               SQLite connection + schema
+  repositories/     the only code that touches the DB; every tenant-owned method is tenant-scoped
+  integrations/     the Jira HTTP client (OAuth, projects, issue creation)
+  services/         domain logic, unit-testable with no HTTP server and no real DB
+  plugins/          Fastify cross-cutting concerns: session/API-key auth, error handling, OpenAPI
+  routes/           HTTP only -- wraps services in zod-validated Fastify routes
 tests/
-  fakes/          in-memory repository + Jira client fakes for unit tests
-  services/       service-layer unit tests (no server, no real DB)
-  routes/         REST endpoint tests (auth, validation, status codes, tenant isolation)
+  fakes/            in-memory repository + Jira client fakes for unit tests
+  services/         service-layer unit tests (no server, no real DB)
+  routes/           REST endpoint tests (auth, validation, status codes, tenant isolation)
 ```
 
 ## Known limitations
