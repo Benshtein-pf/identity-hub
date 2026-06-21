@@ -188,6 +188,12 @@ written back into it."
   the Jira HTTP client, no HTTP library dependency. `vitest` for tests.
   `@fastify/rate-limit`, per-API-key, in-process (per the Redis rejection
   above).
+- **Frontend test suite: Vitest + React Testing Library (58 tests).** Same
+  runner as the backend so there is one testing mental model across the repo.
+  Component tests mock endpoint functions (never real fetch) and use the real
+  `ApiError` class so `instanceof` branches in components exercise correctly.
+  `navigator.clipboard` is stubbed in the Vitest setup file because jsdom does
+  not implement the Clipboard API.
 - **CORS (`@fastify/cors`) enabled, scoped to `FRONTEND_URL` with credentials.**
   The frontend SPA (`:5173`) and the API (`:3000`) are different origins, so
   credentialed `fetch` calls need `Access-Control-Allow-Origin` +

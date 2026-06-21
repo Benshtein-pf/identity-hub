@@ -82,6 +82,7 @@ there. This **only** works for the literal hostname `localhost`, not
 | `npm run typecheck:tests` | Type-check `src/` + `tests/` together |
 | `npm run gen:key` | Print a fresh base64 32-byte `APP_ENCRYPTION_KEY` |
 | `npm run digest` | Run the NHI Blog Digest (see below) |
+| `cd frontend && npm test` | Run the frontend test suite (Vitest + RTL, 58 tests) |
 
 ## Trying it out
 
