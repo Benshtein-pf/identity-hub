@@ -242,6 +242,63 @@ Named rather than silently omitted; each is a conscious POC boundary.
 
 ## How to run
 
-(See \`README.md\`. Summary: clone → \`npm install\` → copy \`.env.example\` to \`.env\`
-and fill Atlassian app credentials + a generated \`APP_ENCRYPTION_KEY\` →
-\`npm run dev\`. No Docker, no external datastore, no background services.)
+(See `README.md`. Summary: clone → `npm install` → copy `.env.example` to `.env`
+and fill Atlassian app credentials + a generated `APP_ENCRYPTION_KEY` →
+`npm run dev`. No Docker, no external datastore, no background services.)
+
+---
+
+## NHI Blog Digest — bonus automation
+
+**Decided: standalone `tsx` script, native `fetch` for HTTP, HTML scraping for
+the blog, `claude-haiku-4-5-20251001` for summarization, `blog_digest_state` table
+in the app SQLite DB for dedup. Rejected: RSS feed, flat-file state.**
+
+The digest script (`scripts/blog-digest.ts`) fetches the most recent Oasis
+Security blog post, generates an AI summary, and files a Jira ticket through
+the existing `POST /api/v1/findings` REST endpoint. Runnable one-shot — manually
+or via cron (`0 9 * * 1`, Mondays at 9am).
+
+**Blog source — HTML scraping, not RSS.** `https://oasis.security/blog` is a
+Webflow-hosted site. No RSS or Atom feed exists: `/blog/rss.xml`, `/rss.xml`,
+and `/feed` all return 404; no `<link rel="alternate" type="application/rss+xml">`
+tag and no feed references appear anywhere in the blog HTML. HTML scraping is the
+only option. "Most recent post" is defined as the post in Webflow's featured
+`blog_main-post` block, which renders first in document order and is updated when
+a new post is published.
+
+**Title source.** The editorial headline shown on the listing card, not the SEO
+title on the post page (which appends `| Oasis + Zscaler`-style suffixes). The
+editorial title is more readable as a Jira ticket title.
+
+**AI model.** `claude-haiku-4-5-20251001` — fast and inexpensive for a
+single-call summarization with low output token requirements (~300 tokens).
+Summary style: concise 2-4 sentence paragraph, no em dashes. Description contains
+the summary only (no URL footer).
+
+**Dedup via `blog_digest_state` table.** The `/api/v1/findings` endpoint performs
+no server-side dedup (by design; see "Idempotency" under Known limitations). To
+avoid filing a duplicate ticket on repeated cron runs when no new post has been
+published, the script maintains a `blog_digest_state` table in the app's SQLite
+DB (`DATABASE_PATH`), keyed by post URL. It checks this table before making any
+Anthropic or Jira API call — a found row triggers an immediate exit 0.
+
+*Rejected flat-file state:* a `.digest-state.json` file under `scripts/` was
+considered. SQLite was preferred because the infrastructure already exists, the
+data is durable, and keeping it in the same DB makes dedup state visible alongside
+the ticketing data.
+
+**Deliberate architecture deviation.** The script opens the SQLite DB directly
+via `better-sqlite3` (already a project dependency), bypassing the application's
+repository layer. CLAUDE.md mandates that repositories are the only code touching
+the DB. This is a conscious, documented exception for a standalone ops-script that
+runs outside the Fastify process and has no access to the repository layer. The
+deviation is limited to the `blog_digest_state` table only — the script never
+reads or writes any other table. Production would expose a `/api/internal/digest`
+endpoint and keep DB access behind the service boundary.
+
+**Error policy.** If the blog is unreachable or markup has changed such that title
+or URL extraction fails, the script logs a clear human-readable error and exits 1.
+No Anthropic call is made and no ticket is filed. If the backend is unreachable or
+returns a non-201, the script exits 1 before writing the dedup row, so the next
+run retries. A missed filing is preferable to a silent success.
