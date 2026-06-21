@@ -46,6 +46,7 @@ export function TicketsSection({ onGoToJira }: Props) {
   const [ticketsError, setTicketsError] = useState<string | null>(null);
   const recentRefreshKey = useRef(0);
   const [, forceRecentRefresh] = useState(0);
+  const hasLoadedProjects = useRef(false);
 
   const handleApiError = useCallback(
     (err: unknown, setError: (msg: string) => void) => {
@@ -62,19 +63,28 @@ export function TicketsSection({ onGoToJira }: Props) {
     [clearSession]
   );
 
-  useEffect(() => {
-    setProjectsLoading(true);
+  const loadProjects = useCallback(() => {
+    if (!hasLoadedProjects.current) setProjectsLoading(true);
     setProjectsError(null);
     setJiraNotConnected(false);
     getJiraProjects()
       .then((r) => {
         setProjects(r.projects);
-        const first = r.projects[0];
-        if (first) { setSelectedProject(first.key); setRecentProject(first.key); }
+        setSelectedProject((cur) =>
+          cur && r.projects.some((p) => p.key === cur) ? cur : (r.projects[0]?.key ?? "")
+        );
+        setRecentProject((cur) =>
+          cur && r.projects.some((p) => p.key === cur) ? cur : (r.projects[0]?.key ?? "")
+        );
       })
       .catch((err: unknown) => handleApiError(err, setProjectsError))
-      .finally(() => setProjectsLoading(false));
+      .finally(() => {
+        setProjectsLoading(false);
+        hasLoadedProjects.current = true;
+      });
   }, [handleApiError]);
+
+  useEffect(() => { loadProjects(); }, [loadProjects]);
 
   useEffect(() => {
     if (!recentProject) return;
@@ -183,6 +193,7 @@ export function TicketsSection({ onGoToJira }: Props) {
             <select
               id="create-project"
               value={selectedProject}
+              onClick={loadProjects}
               onChange={(e: ChangeEvent<HTMLSelectElement>) => {
                 setSelectedProject(e.target.value);
                 setProjectFieldError(null);
@@ -248,6 +259,7 @@ export function TicketsSection({ onGoToJira }: Props) {
           <select
             id="recent-project"
             value={recentProject}
+            onClick={loadProjects}
             onChange={(e: ChangeEvent<HTMLSelectElement>) => setRecentProject(e.target.value)}
             disabled={projects.length === 0}
             className={`w-56 ${selectClass}`}
