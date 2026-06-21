@@ -297,6 +297,19 @@ deviation is limited to the `blog_digest_state` table only — the script never
 reads or writes any other table. Production would expose a `/api/internal/digest`
 endpoint and keep DB access behind the service boundary.
 
+**Assistant prefill to suppress markdown headers.** The Anthropic API call
+prefills the assistant turn with `"This"`, forcing the model to continue from
+that token rather than opening with a header or label (e.g. `# Executive Summary`).
+The SDK returns only the tokens generated after the prefill, so the script
+prepends `"This"` to reconstruct the full summary. `max_tokens` is set to 400
+rather than the initial 300 to give comfortable headroom after the prefill token
+is spent.
+
+*Rejected system-prompt instruction alone:* telling the model "do not use
+headers" is advisory and unreliable — models ignore it inconsistently, especially
+when the prompt uses words like "executive summary" that prime a header response.
+Prefilling is structural: the model physically cannot emit anything before `"This"`.
+
 **Error policy.** If the blog is unreachable or markup has changed such that title
 or URL extraction fails, the script logs a clear human-readable error and exits 1.
 No Anthropic call is made and no ticket is filed. If the backend is unreachable or
