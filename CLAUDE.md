@@ -1,20 +1,45 @@
-# CLAUDE.md — IdentityHub Jira Integration
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 Invariants for every change. The *why* behind these lives in `DECISIONS.md` — read
 it once; don't restate it here. If a rule here conflicts with a one-off
 instruction, stop and surface it.
 
+## Commands
+
+```bash
+# Backend (from repo root)
+npm run dev              # start backend with hot reload (port 3000)
+npm run build            # type-check + compile to dist/
+npm start                # run compiled build
+npm test                 # run all backend + integration tests (vitest)
+npm run test:watch       # vitest in watch mode
+npm run typecheck        # type-check src/ only
+npm run typecheck:tests  # type-check src/ + tests/ together
+npm run gen:key          # generate a fresh APP_ENCRYPTION_KEY
+npm run digest           # run the NHI Blog Digest script
+
+# Run a single test file
+npx vitest run tests/services/auth.service.test.ts
+
+# Frontend (from repo root)
+cd frontend && npm install && npm run dev   # start frontend dev server (port 5173)
+cd frontend && npm test                     # run frontend test suite (Vitest + RTL)
+cd frontend && npm run typecheck            # type-check frontend
+```
+
 ## Project
 
 POC: file IdentityHub NHI findings as Jira tickets, from a UI and an external REST
-endpoint. Single TypeScript process (Fastify), SQLite, minimal React frontend.
-Must run with clone → `npm install` → `.env` → run. No Docker, no Redis, no
-external service accounts.
+endpoint. Single TypeScript process (Fastify), SQLite, minimal React frontend
+(Vite, in `frontend/`). Must run with clone → `npm install` → `.env` → run.
+No Docker, no Redis, no external service accounts.
 
 ## Stack (fixed)
 
 - TypeScript end-to-end. Backend **Fastify**, DB **SQLite** behind a repository
-  layer. Frontend minimal React, built separately against the frozen API contract.
+  layer. Frontend minimal React (Vite) in `frontend/`, built against the frozen API contract.
 - **No Docker, no Redis, no external service accounts.** Clone → `npm install` →
   configure `.env` → run. "Frictionless to run" is an explicit eval criterion.
 
@@ -24,6 +49,9 @@ external service accounts.
   HTTP or SQL. Repositories are the only code touching the DB. One Jira client
   wraps all Jira calls.
 - Services must be unit-testable with no HTTP server and no real DB.
+- `src/contract/` is the shared API contract — zod schemas consumed by both the
+  backend routes and the frontend's typed fetch client (`frontend/src/api/`).
+  The frontend imports directly from `src/contract/` via a path alias.
 
 ## Security (non-negotiable)
 - **Tenant isolation at the repository layer.** Every tenant-owned repo method
