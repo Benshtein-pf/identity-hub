@@ -1,12 +1,12 @@
-# IdentityHub — Jira Integration (backend)
+# IdentityHub — Jira Integration
 
-POC backend that lets IdentityHub users file Jira tickets for NHI findings
+POC that lets IdentityHub users file Jira tickets for NHI findings
 (stale service accounts, overprivileged keys, expiring credentials) from a UI
-and from an external REST API (scanners, CI/CD). Backend only — see
-`CLAUDE.md` for the invariants this code holds to and `DECISIONS.md` for the
-reasoning behind every major choice. The frontend is a separate, later effort
-built against the API contract this backend defines (see `src/contract/`,
-also published live as OpenAPI at `/docs` once the server is running).
+and from an external REST API (scanners, CI/CD). Includes a TypeScript/Fastify
+backend and a minimal React frontend. See `CLAUDE.md` for the invariants this
+code holds to and `DECISIONS.md` for the reasoning behind every major choice.
+The API contract (`src/contract/`) is also published live as OpenAPI at `/docs`
+once the server is running.
 
 ## Stack
 
@@ -80,6 +80,7 @@ there. This **only** works for the literal hostname `localhost`, not
 | `npm test` | Run the test suite (vitest) |
 | `npm run typecheck` | Type-check `src/` only |
 | `npm run typecheck:tests` | Type-check `src/` + `tests/` together |
+| `npm run test:watch` | Run the test suite in watch mode |
 | `npm run gen:key` | Print a fresh base64 32-byte `APP_ENCRYPTION_KEY` |
 | `npm run digest` | Run the NHI Blog Digest (see below) |
 | `cd frontend && npm test` | Run the frontend test suite (Vitest + RTL, 58 tests) |

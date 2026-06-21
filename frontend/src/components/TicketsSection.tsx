@@ -290,6 +290,18 @@ export function TicketsSection({ onGoToJira }: Props) {
                 <span className="flex-1 text-sm text-gray-800 dark:text-gray-200 truncate">
                   {t.title}
                 </span>
+                <time
+                  dateTime={t.createdAt}
+                  className="shrink-0 text-xs text-gray-400 dark:text-gray-500"
+                >
+                  {new Date(t.createdAt).toLocaleString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                    hour: "numeric",
+                    minute: "2-digit",
+                  })}
+                </time>
                 <span className="shrink-0 rounded-full bg-gray-100 dark:bg-gray-700 px-2 py-0.5 text-xs text-gray-500 dark:text-gray-400 capitalize">
                   {t.source}
                 </span>
