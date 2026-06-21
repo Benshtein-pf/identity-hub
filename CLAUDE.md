@@ -45,7 +45,7 @@ external service accounts.
 ## Jira specifics (verified)
 
 - Authorize at `https://auth.atlassian.com/authorize` (`audience=api.atlassian.com`,
-  `response_type=code`), scopes `read:jira-work write:jira-work offline_access`,
+  `response_type=code`), scopes `read:jira-work write:jira-work`,
   single-use `state` verified on callback.
 - After token exchange, call `GET https://api.atlassian.com/oauth/token/accessible-resources`
   for the `cloudId`. **Default to the first site**, document the assumption.
