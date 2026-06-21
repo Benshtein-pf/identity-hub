@@ -48,11 +48,15 @@ export function createAuthService(config: AuthServiceConfig): AuthService {
 
       const passwordHash = await hashPassword(password);
       const now = clock().toISOString();
-      const tenant = config.tenants.create({ id: generateId(), createdAt: now });
+      const tenantId = generateId();
 
+      let tenant: { id: string; createdAt: string };
       let user: User;
       try {
-        user = config.users.create({ id: generateId(), tenantId: tenant.id, email, passwordHash, createdAt: now });
+        ({ tenant, user } = config.tenants.createWithFirstUser({
+          tenant: { id: tenantId, createdAt: now },
+          user: { id: generateId(), tenantId, email, passwordHash, createdAt: now }
+        }));
       } catch (error) {
         // Defense in depth against a registration race on the same email
         // (the users.email UNIQUE constraint is the source of truth here).

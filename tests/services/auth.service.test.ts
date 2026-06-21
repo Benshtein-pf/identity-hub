@@ -8,10 +8,11 @@ import {
 } from "../fakes/fakeRepositories.js";
 
 function buildAuthService(now: () => Date): AuthService {
+  const sharedUsersRows = new Map();
   return createAuthService({
-    users: createFakeUsersRepository(),
+    users: createFakeUsersRepository(sharedUsersRows),
     sessions: createFakeSessionsRepository(),
-    tenants: createFakeTenantsRepository(),
+    tenants: createFakeTenantsRepository(sharedUsersRows),
     sessionTtlDays: 7,
     clock: now
   });

@@ -6,6 +6,7 @@ import type { ApiKey, ApiKeysRepository } from "../repositories/types.js";
 import { systemClock, type Clock } from "./shared/clock.js";
 
 const API_KEY_PREFIX = "ih_";
+const KEY_PREVIEW_CHARS = 8;
 const DEFAULT_KEY_NAME = "Unnamed key";
 
 export interface CreateApiKeyInput {
@@ -59,7 +60,7 @@ export function createApiKeysService(config: ApiKeysServiceConfig): ApiKeysServi
         tenantId,
         name: input.name ?? DEFAULT_KEY_NAME,
         keyHash: sha256Hex(raw),
-        keyPrefix: raw.slice(0, API_KEY_PREFIX.length + 8),
+        keyPrefix: raw.slice(0, API_KEY_PREFIX.length + KEY_PREVIEW_CHARS),
         createdAt: clock().toISOString(),
         expiresAt: input.expiresAt ?? null
       });

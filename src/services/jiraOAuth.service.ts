@@ -89,8 +89,14 @@ export function createJiraOAuthService(config: JiraOAuthServiceConfig): JiraOAut
 
   return {
     connect(tenantId) {
+      const now = clock().getTime();
+      for (const [key, pending] of pendingStates) {
+        if (pending.expiresAt <= now) {
+          pendingStates.delete(key);
+        }
+      }
       const state = generateOAuthState();
-      pendingStates.set(state, { tenantId, expiresAt: clock().getTime() + stateTtlMs });
+      pendingStates.set(state, { tenantId, expiresAt: now + stateTtlMs });
       return config.jiraClient.buildAuthorizeUrl(state);
     },
 
@@ -128,7 +134,7 @@ export function createJiraOAuthService(config: JiraOAuthServiceConfig): JiraOAut
 
       const expiresAtMs = new Date(credential.accessTokenExpiresAt).getTime();
       const skewMs = 60_000;
-      if (clock().getTime() < expiresAtMs - skewMs) {
+      if (Number.isFinite(expiresAtMs) && clock().getTime() < expiresAtMs - skewMs) {
         return {
           accessToken: decryptFromString(credential.accessTokenEncrypted, config.encryptionKey),
           cloudId: credential.cloudId,

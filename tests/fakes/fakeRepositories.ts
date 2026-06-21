@@ -20,22 +20,8 @@ import type {
  * HTTP server and no real DB").
  */
 
-export function createFakeTenantsRepository(): TenantsRepository {
-  const rows = new Map<string, Tenant>();
-  return {
-    create(input) {
-      const tenant: Tenant = { id: input.id, createdAt: input.createdAt };
-      rows.set(tenant.id, tenant);
-      return tenant;
-    },
-    findById(tenantId) {
-      return rows.get(tenantId) ?? null;
-    }
-  };
-}
-
-export function createFakeUsersRepository(): UsersRepository {
-  const rows = new Map<string, User>();
+export function createFakeUsersRepository(sharedRows?: Map<string, User>): UsersRepository {
+  const rows = sharedRows ?? new Map<string, User>();
   return {
     create(input) {
       const user: User = { ...input };
@@ -53,6 +39,28 @@ export function createFakeUsersRepository(): UsersRepository {
     findById(tenantId, userId) {
       const user = rows.get(userId);
       return user && user.tenantId === tenantId ? user : null;
+    }
+  };
+}
+
+export function createFakeTenantsRepository(sharedUsersRows?: Map<string, User>): TenantsRepository {
+  const rows = new Map<string, Tenant>();
+  const usersRows = sharedUsersRows ?? new Map<string, User>();
+  return {
+    create(input) {
+      const tenant: Tenant = { id: input.id, createdAt: input.createdAt };
+      rows.set(tenant.id, tenant);
+      return tenant;
+    },
+    findById(tenantId) {
+      return rows.get(tenantId) ?? null;
+    },
+    createWithFirstUser(input) {
+      const tenant: Tenant = { id: input.tenant.id, createdAt: input.tenant.createdAt };
+      rows.set(tenant.id, tenant);
+      const user: User = { ...input.user };
+      usersRows.set(user.id, user);
+      return { tenant, user };
     }
   };
 }

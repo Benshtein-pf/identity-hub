@@ -3,9 +3,13 @@ import type { JiraClient, JiraProjectApi } from "../integrations/jira/jiraClient
 import { withJiraErrorMapping } from "./shared/jiraErrorMapping.js";
 import type { JiraOAuthService } from "./jiraOAuth.service.js";
 
+const PROJECT_CACHE_TTL_MS = 30_000;
+
 export interface JiraServiceConfig {
   jiraClient: JiraClient;
   jiraOAuth: JiraOAuthService;
+  /** Injectable clock for tests; defaults to Date.now. */
+  clock?: () => number;
 }
 
 export interface JiraService {
@@ -15,9 +19,18 @@ export interface JiraService {
 }
 
 export function createJiraService(config: JiraServiceConfig): JiraService {
+  const clock = config.clock ?? (() => Date.now());
+  const projectCache = new Map<string, { projects: JiraProjectApi[]; expiresAt: number }>();
+
   async function listProjects(tenantId: string): Promise<JiraProjectApi[]> {
+    const cached = projectCache.get(tenantId);
+    if (cached && clock() < cached.expiresAt) {
+      return cached.projects;
+    }
     const { accessToken, cloudId } = await config.jiraOAuth.getValidAccessToken(tenantId);
-    return withJiraErrorMapping(() => config.jiraClient.listProjects(accessToken, cloudId));
+    const projects = await withJiraErrorMapping(() => config.jiraClient.listProjects(accessToken, cloudId));
+    projectCache.set(tenantId, { projects, expiresAt: clock() + PROJECT_CACHE_TTL_MS });
+    return projects;
   }
 
   return {

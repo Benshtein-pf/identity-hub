@@ -86,6 +86,10 @@ export interface Ticket {
 export interface TenantsRepository {
   create(input: { id: string; createdAt: string }): Tenant;
   findById(tenantId: string): Tenant | null;
+  createWithFirstUser(input: {
+    tenant: { id: string; createdAt: string };
+    user: { id: string; tenantId: string; email: string; passwordHash: string; createdAt: string };
+  }): { tenant: Tenant; user: User };
 }
 
 export interface UsersRepository {
