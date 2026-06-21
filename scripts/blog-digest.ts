@@ -128,13 +128,16 @@ async function summarise(title: string, body: string): Promise<string> {
   try {
     message = await client.messages.create({
       model: "claude-haiku-4-5-20251001",
-      max_tokens: 300,
+      max_tokens: 400,
       system:
         "You are a security analyst summarizing blog posts for a non-human identity (NHI) " +
         "security team. Write a concise 2-4 sentence executive summary of the provided blog " +
         "post. Focus on the key security insight, the problem being addressed, and the " +
         "practical takeaway. Use plain, direct prose. Do not use em dashes.",
-      messages: [{ role: "user", content: `Title: ${title}\n\n${body}` }],
+      messages: [
+        { role: "user", content: `Title: ${title}\n\n${body}` },
+        { role: "assistant", content: "This" },
+      ],
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
@@ -147,7 +150,7 @@ async function summarise(title: string, body: string): Promise<string> {
     console.error("Error: unexpected response format from Anthropic API");
     process.exit(1);
   }
-  return firstBlock.text.trim();
+  return ("This" + firstBlock.text).trim();
 }
 
 // ── File ticket ───────────────────────────────────────────────────────────────
