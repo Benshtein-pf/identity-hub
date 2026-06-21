@@ -28,7 +28,7 @@ const DIGEST_PROJECT_KEY = requireEnv("DIGEST_PROJECT_KEY");
 const DIGEST_APP_URL = process.env["DIGEST_APP_URL"] ?? "http://localhost:3000";
 const DATABASE_PATH = process.env["DATABASE_PATH"] ?? "./data/identity-hub.sqlite";
 
-const BLOG_BASE = "https://oasis.security" as const;
+const BLOG_BASE = "https://oasis.security";
 
 // ── SQLite ────────────────────────────────────────────────────────────────────
 
